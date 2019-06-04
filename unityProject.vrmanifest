@@ -1,0 +1,16 @@
+{
+  "source": "Unity",
+  "applications": [
+    {
+      "app_key": "application.generated.unity.realsensetest2.exe",
+      "launch_type": "url",
+      "url": "steam://launch/",
+      "action_manifest_path": "D:\\Unity\\Project\\Virtual Attendance\\actions.json",
+      "strings": {
+        "en_us": {
+          "name": "Realsense test 2 [Testing]"
+        }
+      }
+    }
+  ]
+}

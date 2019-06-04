@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/MainMenu.unity
+    guid: 4acf8e8e141735440b8837e74b9c21d8
+  - enabled: 1
+    path: Assets/BouncyBall.unity
+    guid: fe55a3a8863761344a7000c8041f8444
+  - enabled: 1
+    path: Assets/ColorBalls.unity
+    guid: 47396ac09ee6fbf4082731655bb67f1f
+  - enabled: 1
+    path: Assets/Destruction.unity
+    guid: 7b8c316ca4920d342851762dd2047801
+  - enabled: 1
+    path: Assets/TableCup.unity
+    guid: f087fd23619f5f64bb3dec568872fe7d
+  m_configObjects: {}
