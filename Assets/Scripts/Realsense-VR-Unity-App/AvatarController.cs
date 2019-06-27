@@ -1,6 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Diagnostics;
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.UI;
 using UnityEngine;
+
+/* PROBAJ ZA SVAKU SLIKU NAPRAVIT NOVI FILE SA EMGUCV*/
 public class AvatarController : MonoBehaviour
 {
     private const int nBodyparts = 19;
@@ -50,13 +56,16 @@ public float divisorX = 350f, divisorY = 400f, divisorZ = 300f;
 
     private int cnt = 0;
     private byte[] recievedImage;
-
+    private string[] imageName = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+    private string currentName = "image0.png";
+    private string imagesPath;
     private bool doOnce = false;
     // Use this for initialization
     void Awake()
     {
         clientSocket = new TcpSocket("127.0.0.1", 54000);
         clientSocket.MessageReceived += ClientSocket_MessageReceived;
+        imagesPath = Application.dataPath + "/Slike/";
         /*
         // Putting the character localPosition in a vector so we can manipulate its localPosition later on
         playerCharacter = GameObject.Find("PlayerCharacter").transform;
@@ -114,10 +123,28 @@ public float divisorX = 350f, divisorY = 400f, divisorZ = 300f;
         gameFrame.GetComponent<Renderer>().material.mainTexture = _texture;
         // newTexture = new Texture2D(640, 480, Format, false);
         // _texture.Apply();
+
+        //KOD ZA POKRETANJE JOINT TRACKINGA
+     /*   try
+        {
+            Process myProcess = new Process();
+            myProcess.StartInfo.FileName = "C:\\Windows\\system32\\cmd.exe";
+            string path = "C:\\Users\\Brian\\Desktop\\testFile.bat";
+            myProcess.StartInfo.Arguments = "/c" + path;
+            myProcess.EnableRaisingEvents = true;
+            myProcess.Start();
+            myProcess.WaitForExit();
+            int ExitCode = myProcess.ExitCode;
+            //print(ExitCode);
+        }
+        catch (Exception e)
+        {
+            print(e);
+        }*/
     }
 
     private bool call = false, end = false, newTexReady = false, texReady = false;
-    private int tempCnt = 0, messCnt = 0;
+    private int tempCnt = 0, messCnt = 0, nameCnt = 0;
     private void ClientSocket_MessageReceived(byte[] message, long counter)
     {
         //Debug.Log("Velicina: " + System.Text.ASCIIEncoding.Unicode.GetByteCount(message));
@@ -132,79 +159,58 @@ public float divisorX = 350f, divisorY = 400f, divisorZ = 300f;
             recievedImage = message;
         }
 
-        Debug.Log(recievedImage.Length + " " + message.Length);
-       /* if (tempCnt % 2 == 0)
-         {
-             System.IO.File.WriteAllBytes("Assets/Slike/image.png", recievedImage);
-         }
-         else
-         {*/
-             //System.IO.File.WriteAllBytes(@"E:\Documents\repositories\Realsense test 2\Assets\Slike\some400.png", message);
-             System.IO.File.WriteAllBytes("Assets/Slike/image.png", recievedImage);
-         //}*/
-         newTexReady = true;
-         tempCnt++;
-         //Update();
-           
-     //   }
-       // newTexture.LoadRawTextureData(recievedImage);
-       
-        // For testing purposes, also write to a file in the project folder
-        // File.WriteAllBytes(Application.dataPath + " /../SavedScreen.png", bytes);
-        //  System.IO.File.WriteAllText(@"D:\git_repo\Virtual-Attendance\astra-joint-tracking\WriteText.txt", message);
-        //Debug.Log(System.Text.ASCIIEncoding.Unicode.GetByteCount(message));
-        //  ReformatMessage(message);
-        //Debug.Log("Message is: " + message);
-        //Debug.Log(DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second);
+        UnityEngine.Debug.Log(recievedImage.Length + " " + message.Length);
+        currentName = "image" + imageName[nameCnt] + ".png";
+        if (File.Exists(imagesPath + "currentName"))
+        {
+            File.Delete(imagesPath + "currentName");
+        }
+       // File.WriteAllBytes("Assets/Slike/" + currentName, recievedImage);
+
+        StreamWriter streamWriter = new StreamWriter("Assets/Slike/" + currentName);
+        streamWriter.BaseStream.Write(recievedImage, 0, recievedImage.Length);
+        streamWriter.Close();
+
+        if (nameCnt == 9)
+        {  
+            nameCnt = 0;
+        }
+        else
+        {
+            nameCnt++;
+        }
+
+        newTexReady = true;
+        tempCnt++;
+
     }
 
     // Update is called once per frame
 
     void Update()
     {
-       // Debug.Log("fixedupdate");
-        /*if (call)
-        {
-            gameFrame.GetComponent<Renderer>().material.SetTexture("_MainTex", newTexture);
-            call = false;
-        }*/
-        /*  if(call && !end)
-          { 
-             // newTexture.LoadRawTextureData(recievedImage);
-            //  newTexture.LoadImage(System.IO.File.ReadAllBytes(@"D:\Unity\Project\Realsense test 2\Assets\some400.png"));
-           //   newTexture.Apply();
-              gameFrame.GetComponent<Renderer>().material.SetTexture("_MainTex", newTexture);
-              end = true;
-          }*/
+
         if (newTexReady)
         {
-            //   Debug.Log(recievedImage.Length);
-            //_texture.LoadImage(pngBytes);
-            _texture.LoadImage(System.IO.File.ReadAllBytes("Assets/Slike/image.png"));
+            StreamReader streamReader = new StreamReader("Assets/Slike/" + currentName);    
+            var bytes = default(byte[]);
+            using (var memstream = new MemoryStream())
+            {
+                var buffer = new byte[1024 * 1024 * 2];
+                var bytesRead = default(int);
+                while ((bytesRead = streamReader.BaseStream.Read(buffer, 0, buffer.Length)) > 0)
+                    memstream.Write(buffer, 0, bytesRead);
+                bytes = memstream.ToArray();
+            }
+            streamReader.Close();
+            _texture.LoadImage(bytes);
+            //_texture.LoadImage(System.IO.File.ReadAllBytes("Assets/Slike/" + currentName));
             _texture.Apply();
-           // System.IO.File.WriteAllBytes("Assets/Slike/some400.png", recievedImage);
+         
             Array.Clear(recievedImage, 0, 0);
-            /* if (tempCnt % 2 == 0)
-             {
-                 Debug.Log("2");
-                 //  _texture.LoadImage(recievedImage);
-                 _texture.Apply();
-                 gameFrame.GetComponent<Renderer>().material.SetTexture("_MainTex", _texture);
 
-                 newTexReady = false;
-             }
-             else
-             {
-                 Debug.Log("2");
-                 //newTexture.Apply();
-                 newTexture.Apply();
-                 gameFrame.GetComponent<Renderer>().material.SetTexture("_MainTex", newTexture);
-               //  _texture.LoadImage(recievedImage);
-                 newTexReady = false;
-             }*/
             newTexReady = false;
         }
-       // tempCnt++;
         messCnt++;
         //    byte[] bytes = _texture.EncodeToPNG();
         //   File.WriteAllBytes(@"D:\Unity\Project\Realsense test 2\Assets\Slike\image" + cnt + ".png", bytes);
@@ -279,7 +285,7 @@ public float divisorX = 350f, divisorY = 400f, divisorZ = 300f;
     private void ReformatMessage(string message)
     {
         string[] perBodyparts = message.Split(' ');
-        Debug.Log(perBodyparts.Length);
+        UnityEngine.Debug.Log(perBodyparts.Length);
         /* float x0, y0, z0;
          float x1, y1, z1;
          float x2, y2, z2;
@@ -324,4 +330,9 @@ public float divisorX = 350f, divisorY = 400f, divisorZ = 300f;
          }
     }
 
+    private void OnApplicationQuit()
+    {
+        /*string path = Application.dataPath + "/Slike/12.png";
+        File.Delete(path);*/
+    }
 }
