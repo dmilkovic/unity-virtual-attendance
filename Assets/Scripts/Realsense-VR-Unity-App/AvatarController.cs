@@ -71,11 +71,11 @@ public class AvatarController : MonoBehaviour
     // Use this for init ialization
     void Awake()
     {
-        clientSocket = new TcpSocket("127.0.0.1", 54000);
-        //clientSocket = new TcpSocket("192.168.1.11", 54000);
+        //clientSocket = new TcpSocket("127.0.0.1", 54000);
+        clientSocket = new TcpSocket("192.168.1.6", 54000);
         clientSocket.MessageReceived += ClientSocket_MessageReceived;
         imagesPath = Application.dataPath + "/Slike/";
-     //   materialStream = new MemoryStream();
+        //   materialStream = new MemoryStream();
     }
 
     private void Start()
@@ -111,21 +111,24 @@ public class AvatarController : MonoBehaviour
     private List<byte> messageBuffer = new List<byte>();
     byte[] EndOfMessage = System.Text.Encoding.ASCII.GetBytes("image_end");
 
-    private void ClientSocket_MessageReceived(byte[] message, long counter)
+    private void ClientSocket_MessageReceived(byte[] message/*, long counter*/)
     {
         //Debug.Log("Velicina: " + System.Text.ASCIIEncoding.Unicode.GetByteCount(message));
-        cnt++;
+        //cnt++;
         //Debug.Log(cnt);
-        call = true;
+        //call = true;
         // Encode texture into PNG
         // if (!doOnce)
         // {
-     
+        Debug.Log("1");
         if (!IsEndOfMessage(message, EndOfMessage))
         {
-             messageBuffer.AddRange(message);
-             Debug.Log("Velicina: " + messageBuffer.Capacity);
-             return;
+            messageBuffer.AddRange(message);
+            Debug.Log("Nije cijela poruka");
+            /* StreamWriter streamWriter2 = new StreamWriter("Assets/networkERRR" + cnt + ".txt");
+             streamWriter2.BaseStream.Write(message, 0, message.Length);
+             streamWriter2.Close();*/
+            return;
             //continue reading from socket and adding to ReceivedBytes
         }
         else
@@ -137,7 +140,7 @@ public class AvatarController : MonoBehaviour
             Debug.Log("Velicina: " + messageBuffer.Capacity);
             messageBuffer.Clear();
         }
-        
+        Debug.Log("2");
         if (!newTexReady)
         {
             /*
@@ -153,34 +156,45 @@ public class AvatarController : MonoBehaviour
                 streamWriter.BaseStream.Write(imageBackup, 0, message.Length);
             }*/
 
-
+            Debug.Log("3");
             //recievedImage = message;
-        
-
-            recievedImage = new byte[2150400];//new byte[message.Length];
-            message.CopyTo(recievedImage, 0);
-            StreamWriter streamWriter = new StreamWriter("Assets/Slike/image1.png");
-            streamWriter.BaseStream.Write(recievedImage, 0, message.Length);
+           
             
-            UnityEngine.Debug.Log("message length: " + message.Length);
-            streamWriter.Close();
+            Debug.Log("4");
+            try
+            {
+                StreamWriter streamWriter = new StreamWriter("Assets/Slike/image1.png");
+                recievedImage = new byte[message.Length];//new byte[2150400]
+                message.CopyTo(recievedImage, 0);
+                streamWriter.BaseStream.Write(recievedImage, 0, message.Length);
+                streamWriter.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Error: " + e);
+            }
+            Debug.Log("5");
+
+            //UnityEngine.Debug.Log("message length: " + message.Length);
+
             newTexReady = true;
             //     imageBackup = message;
         }
-        if(!doOnce)
+        Debug.Log("6");
+        /*if(!doOnce)
         {
             StreamWriter streamWriter2 = new StreamWriter("Assets/networkX" + cnt + ".txt");
             streamWriter2.BaseStream.Write(message, 0, message.Length);
-            streamWriter2.Close();
-            
-           /* using (var stream = new FileStream("Assets/networkZ.txt", FileMode.Append))
-            {
-                //stream.Write(recievedImage, 0, recievedImage.Length);
-                stream.Write(recievedImage, 0, message.Length);
-            }*/
-            //doOnce = true;
-        }
-        UnityEngine.Debug.Log(recievedImage.Length + " " + message.Length);
+            streamWriter2.Close();*/
+
+        /* using (var stream = new FileStream("Assets/networkZ.txt", FileMode.Append))
+         {
+             //stream.Write(recievedImage, 0, recievedImage.Length);
+             stream.Write(recievedImage, 0, message.Length);
+         }*/
+        //doOnce = true;
+        // }
+        //UnityEngine.Debug.Log(recievedImage.Length + " " + message.Length);
         /*   currentName = "image" + imageName[nameCnt] + ".png";
            if (File.Exists(imagesPath + "currentName"))
            {
@@ -192,8 +206,8 @@ public class AvatarController : MonoBehaviour
         /* StreamWriter streamWriter = new StreamWriter("Assets/Slike/image1.png");
          streamWriter.BaseStream.Write(recievedImage, 0, recievedImage.Length);
          streamWriter.Close();*/
-       
-        if (nameCnt == 9)
+
+        /*if (nameCnt == 9)
         {
             nameCnt = 0;
         }
@@ -202,7 +216,7 @@ public class AvatarController : MonoBehaviour
             nameCnt++;
         }
 
-        tempCnt++;
+        tempCnt++;*/
     }
 
     private bool IsEndOfMessage(byte[] MessageToCheck, byte[] EndOfMessage)
@@ -212,9 +226,9 @@ public class AvatarController : MonoBehaviour
             if (MessageToCheck[MessageToCheck.Length - (EndOfMessage.Length + i)] != EndOfMessage[i])
                 return false;
         }*/
-        for(int i = 0; i<EndOfMessage.Length; i++)
+        for (int i = 0; i < EndOfMessage.Length; i++)
         {
-            if(MessageToCheck[MessageToCheck.Length - EndOfMessage.Length + i] != EndOfMessage[i])
+            if (MessageToCheck[MessageToCheck.Length - EndOfMessage.Length + i] != EndOfMessage[i])
             {
                 return false;
             }
@@ -237,11 +251,11 @@ public class AvatarController : MonoBehaviour
 
         if (newTexReady)
         {
-           // StreamReader streamReader = new StreamReader("Assets/Slike/" + currentName);
+            // StreamReader streamReader = new StreamReader("Assets/Slike/" + currentName);
             //StreamReader streamReader = new StreamReader("Assets/Slike/image1.png");
             //imageBackup = recievedImage;
             var bytes = default(byte[]);
-        //    using (StreamReader streamReader = new StreamReader("Assets/Slike/" + currentName))
+            //    using (StreamReader streamReader = new StreamReader("Assets/Slike/" + currentName))
             using (StreamReader streamReader = new StreamReader("Assets/Slike/image1.png"))
             {
                 var memstream = new MemoryStream();
@@ -252,18 +266,18 @@ public class AvatarController : MonoBehaviour
                 bytes = memstream.ToArray();
             }
             _texture.LoadImage(bytes);
-          //  _texture.LoadRawTextureData(imageBackup);
-          //  _texture.LoadRawTextureData(b);
+            //  _texture.LoadRawTextureData(imageBackup);
+            //  _texture.LoadRawTextureData(b);
             //_texture.LoadImage(System.IO.File.ReadAllBytes("Assets/Slike/" + currentName));
             _texture.Apply();
 
-           Array.Clear(recievedImage, 0, 0);
-           //Array.Clear(imageBackup, 0, 0);
+            Array.Clear(recievedImage, 0, 0);
+            //Array.Clear(imageBackup, 0, 0);
 
             newTexReady = false;
         }
         messCnt++;
-      
+
     }
 
     private void ReformatMessage(string message)

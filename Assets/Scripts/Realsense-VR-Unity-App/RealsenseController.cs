@@ -46,7 +46,7 @@ public class RealsenseController : MonoBehaviour
         startingPosZ = characterVector.z;
     }
 
-    private void ClientSocket_MessageReceived(byte[] message, long counter)
+    private void ClientSocket_MessageReceived(byte[] message/*, long counter*/)
     {
         IsMessageReceived = true;
         //ReformatMessage(message);

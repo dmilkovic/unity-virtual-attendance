@@ -13,13 +13,13 @@ public class TcpSocket
     private string ipAddress;
     private int port;
     private static Socket socket, clientSocket;
-    private byte[] buffer = new byte[1024*1024*2];//new byte[640*480*7];//512
+    private byte[] buffer = new byte[1024 * 1024];//[640 * 480 * 7]; //new byte[700*1024];//512
     private long counter = 0;
     public Texture2D tex;
 
     private int backlog = 50;
 
-    public delegate void OnMessageReceived(byte[] message, long counter);
+    public delegate void OnMessageReceived(byte[] message/*, long counter*/);
     public event OnMessageReceived MessageReceived;
 
     public TcpSocket(string ipAddress, int port)
@@ -27,7 +27,6 @@ public class TcpSocket
         this.ipAddress = ipAddress;
         this.port = port;
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
         #region added for server emulation
         socket.Bind(new IPEndPoint(IPAddress.Any, port));
         Debug.Log("Bound socket to port " + port);
@@ -75,13 +74,13 @@ public class TcpSocket
         int bufferLength = socket.EndReceive(result);
         if (bufferLength > 0)
         {
-            counter++;
+            //counter++;
             //string message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
-         /*   Mat img2 = CvInvoke.Imread("horse.jpg", ImreadModes.Unchanged);
-            Debug.Log("Evo je: " + img2.Height);
-            CvInvoke.Imwrite("rocco2.jpg", img2);*/
-         //   Mat img2 = new Mat(640, 480, DepthType.Cv8U, 4);
-           // CvInvoke.Imdecode(buffer, ImreadModes.Unchanged, img2);
+            /*   Mat img2 = CvInvoke.Imread("horse.jpg", ImreadModes.Unchanged);
+               Debug.Log("Evo je: " + img2.Height);
+               CvInvoke.Imwrite("rocco2.jpg", img2);*/
+            //   Mat img2 = new Mat(640, 480, DepthType.Cv8U, 4);
+            // CvInvoke.Imdecode(buffer, ImreadModes.Unchanged, img2);
 
             //Texture2D tex = new Texture2D(640, 480, TextureFormat.ASTC_RGBA_8x8, false);
             // tex.LoadImage(buffer);
@@ -89,14 +88,18 @@ public class TcpSocket
             //ImageViewer viewer = new ImageViewer(); //create an image viewer
             // viewer.Image = img2;
             //   viewer.ShowDialog(); //show the image viewer
-            byte[] message = buffer;
-          //  string message = buffer.ToString();
-           // string message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
-            Debug.Log("Poruka" + message);
+            //byte[] message = buffer;
+            byte[] message = new byte[bufferLength];
+            // buffer.CopyTo(message, 0, bufferLength);
+            Array.Copy(buffer, 0, message, 0, bufferLength);
+            //  string message = buffer.ToString();
+            // string message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
+            //Debug.Log("Poruka" + message + "velicina poruke" + bufferLength);
             //string message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
 
-            if (MessageReceived != null) {
-                MessageReceived(message, counter);
+            if (MessageReceived != null)
+            {
+                MessageReceived(message/*, counter*/);
             }
 
             // Handle packet
@@ -113,7 +116,7 @@ public class TcpSocket
         {
             socket.Close();
         }
-        if(clientSocket != null)
+        if (clientSocket != null)
         {
             socket.Close();
         }
