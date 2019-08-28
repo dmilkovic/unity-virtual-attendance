@@ -72,7 +72,7 @@ public class AvatarController : MonoBehaviour
     void Awake()
     {
         //clientSocket = new TcpSocket("127.0.0.1", 54000);
-        clientSocket = new TcpSocket("192.168.1.6", 54000);
+        clientSocket = new TcpSocket("192.0.0.200", 54000);
         clientSocket.MessageReceived += ClientSocket_MessageReceived;
         imagesPath = Application.dataPath + "/Slike/";
         //   materialStream = new MemoryStream();
@@ -143,6 +143,7 @@ public class AvatarController : MonoBehaviour
         Debug.Log("2");
         if (!newTexReady)
         {
+
             /*
             imageBackup = new byte[2150400];//[1024 * 1024];
             StreamWriter streamWriter = new StreamWriter("Assets/Slike/image1.png");
@@ -173,6 +174,7 @@ public class AvatarController : MonoBehaviour
             {
                 Debug.Log("Error: " + e);
             }
+
             Debug.Log("5");
 
             //UnityEngine.Debug.Log("message length: " + message.Length);
@@ -266,8 +268,8 @@ public class AvatarController : MonoBehaviour
                 bytes = memstream.ToArray();
             }
             _texture.LoadImage(bytes);
-            //  _texture.LoadRawTextureData(imageBackup);
-            //  _texture.LoadRawTextureData(b);
+           // _texture.LoadImage(bytes);
+            //_texture.LoadImage(recievedImage);
             //_texture.LoadImage(System.IO.File.ReadAllBytes("Assets/Slike/" + currentName));
             _texture.Apply();
 
